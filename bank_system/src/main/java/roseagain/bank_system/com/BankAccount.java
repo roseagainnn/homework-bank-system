@@ -11,7 +11,7 @@ public class BankAccount {
     private String accountNumber;
     private BigDecimal balance = BigDecimal.ZERO;
     private User owner;
-    private List<Transaction> transactions;
+    private List<Transaction> transactions = new ArrayList<>();
 
     public List<Transaction> getTransactions() {
         return List.copyOf(transactions);

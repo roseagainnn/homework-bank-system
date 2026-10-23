@@ -14,7 +14,7 @@ public class Transaction {
         this.targetAccount = targetAccount;
         this.type = type;
     }
-
+// Создал 2 конструктора для создания транзакций ( для перевода, снятия и пополнения )
     public Transaction(BigDecimal amount, LocalDateTime date, String type) {
         this.id = UUID.randomUUID().toString();
         this.amount = amount;
@@ -22,32 +22,8 @@ public class Transaction {
         this.type = type;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public BankAccount getSourceAccount() {
-        return sourceAccount;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public BankAccount getTargetAccount() {
-        return targetAccount;
-    }
-
-    public String getType() {
-        return type;
-    }
-
     @Override
-    public String toString() {
+    public String toString() { // Ну чисто чтоб в мейне было отображение
         return "Transaction{" +
                 "id='" + id + '\'' +
                 ", amount=" + amount +

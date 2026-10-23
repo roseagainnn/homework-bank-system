@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) { // Мейн я взял из условия задач для демонстрации работы приложения
         // Создаем пользователя
         User user = new User ("John Doe");
 
