@@ -6,14 +6,31 @@ import java.util.UUID;
 
 public class User {
 
-    public User(String name) {
-       this.id = UUID.randomUUID().toString();
+    public User(String id,String name) {
+
+        if(id == null || id.isBlank() || name == null || name.isBlank()){
+            throw new IllegalArgumentException("При создании нового пользователя передан null / пустой объект!");
+        }
+
+       this.id = id;
        this.name = name;
     }
 
-    private String id;
+    public String getName() {
+        return name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public List<BankAccount> getBankAccounts() {
+        return List.copyOf(bankAccounts);
+    }
+
+    private final String id;
     private String name;
-    private List<BankAccount> bankAccounts = new ArrayList<>();
+    private final List<BankAccount> bankAccounts = new ArrayList<>();
 
     public void addAccount(BankAccount account){
 
@@ -21,7 +38,14 @@ public class User {
             throw new IllegalArgumentException("Такого аккаунта не существует!");
         }
 
-        bankAccounts.add(account);
+        if (bankAccounts.contains(account)){
+            throw new IllegalArgumentException("Вы пытаетесь добавить одинаковый аккаунт!");
+
+        }
+
+        if(account.getOwner() == this) {
+            bankAccounts.add(account);
+        }
     }
 
     public List<BankAccount> getAccounts(){

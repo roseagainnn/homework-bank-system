@@ -18,64 +18,65 @@ class BankServiceTest { // Самый веселый класс с тестам�
 
     @Test
     void createAccount_WhenAccountIsValid() { // Ну и погнал тестить методы
-        User user = new User("Nikita");
+        User user = new User("AC-18","Nikita");
 
-        service.createAccount(user);
+        service.createAccount(user, "AC-202");
         assertEquals(1,user.getAccounts().size());
+        assertEquals("AC-202",user.getAccounts().get(0).getAccountNumber()); // т.к мы поменяли id type
+        // на String по условиям задачки - добавил проверку на соответствие номера аккаунта тому, который мы передаем
 
     }
 
     @Test
-    void createAccount_shouldThrowException_whenAccountIsNull(){
-        assertThrows(IllegalArgumentException.class, () -> service.createAccount(null));
+    void createAccount_shouldThrowException_whenAccountAndAccountNumberIsNull(){
+        assertThrows(IllegalArgumentException.class, () -> service.createAccount(null, null));
     }
 
 
     @Test
     void transfer_shouldTransferMoney_whenInputIsValid(){ // Тут чисто всю логику описываю перевода, если деньги есть
 
-        User user = new User("Nikita");
-        User user1 = new User("Anton");
+        User user = new User("AC-18","Nikita");
+        User user1 = new User("AC-19","Anton");
 
-        BankAccount source = new BankAccount(user);
-        BankAccount target = new BankAccount(user1);
+        BankAccount source = new BankAccount("SAD",user);
+        BankAccount target = new BankAccount("ACASD",user);
 
-        source.setBalance(new BigDecimal("500"));
-        target.setBalance(new BigDecimal("100"));
+        source.deposit(new BigDecimal("500"));
+        target.deposit(new BigDecimal("100"));
 
         service.transfer(source,target,new BigDecimal("300"));
 
         assertEquals(0, source.getBalance().compareTo(new BigDecimal("200"))); // Ну и что ожидаю получить после перевода
         assertEquals(0, target.getBalance().compareTo(new BigDecimal("400")));
 
-        assertEquals(1, source.getTransactions().size()); // Тут допом проверяю, что транзакции действительно прошли
-        assertEquals(1, target.getTransactions().size());
+        assertEquals(TransactionType.TRANSFER, source.getTransactions().get(2).getType()); // Проверяем тип транзакции
+
+        assertEquals(3, source.getTransactions().size()); // Тут допом проверяю, что транзакции действительно прошли
+        assertEquals(3, target.getTransactions().size());
 
     }
 
     @Test
     void transfer_shouldThrowException_whenFundsAreInsufficient(){
-        User user = new User("Nikita");
-        User user1 = new User("Anton");
+        User user = new User("AC-18","Nikita");
+        User user1 = new User("AC-19","Anton");
 
-        BankAccount source = new BankAccount(user);
-        BankAccount target = new BankAccount(user1);
-
-        source.setBalance(new BigDecimal("500"));
-        target.setBalance(new BigDecimal("100"));
+        BankAccount source = new BankAccount(user.getId(),user);
+        BankAccount target = new BankAccount(user.getId(),user);
 
 
-        assertThrows(IllegalArgumentException.class,() -> service.transfer(source,target,new BigDecimal("600")));
+        assertThrows(NoMoneyException.class,() -> service.transfer(source,target,new BigDecimal("600")));
         // Ловлю ошибочку отрицательного перевода!
     }
 
     @Test
     void transfer_shouldThrowException_whenAccountsAreSame(){
-        User user = new User("Nikita");
+        User user = new User("AC-18","Nikita");
 
-        BankAccount source = new BankAccount(user);
+        BankAccount source = new BankAccount(user.getId(),user);
         BankAccount target = source;
-        source.setBalance(new BigDecimal("500"));
+        source.deposit(new BigDecimal("500"));
 
         assertThrows(IllegalArgumentException.class,() -> service.transfer(source,target,new BigDecimal("500")));
         // А тут ловлю ошибочку, чтобы счета не были одинаковые!!
@@ -86,11 +87,11 @@ class BankServiceTest { // Самый веселый класс с тестам�
 
     @Test
     void transfer_shouldThrowException_whenAmountIsNull(){
-        User user = new User("Nikita");
-        User user1 = new User("Anton");
+        User user = new User("AC-18","Nikita");
+        User user1 = new User("AC-19","Anton");
 
-        BankAccount source = new BankAccount(user);
-        BankAccount target = new BankAccount(user1);
+        BankAccount source = new BankAccount(user.getId(),user);
+        BankAccount target = new BankAccount(user1.getId(),user1);
 
         assertThrows(IllegalArgumentException.class,() -> service.transfer(source,target,null));
 
@@ -98,11 +99,11 @@ class BankServiceTest { // Самый веселый класс с тестам�
 
     @Test
     void transfer_shouldThrowException_whenAmountIsZero(){
-        User user = new User("Nikita");
-        User user1 = new User("Anton");
+        User user = new User("AC-18","Nikita");
+        User user1 = new User("AC-19","Anton");
 
-        BankAccount source = new BankAccount(user);
-        BankAccount target = new BankAccount(user1);
+        BankAccount source = new BankAccount(user.getId(),user);
+        BankAccount target = new BankAccount(user.getId(),user);
 
         assertThrows(IllegalArgumentException.class,() -> service.transfer(source,target,BigDecimal.ZERO));
 
@@ -110,11 +111,11 @@ class BankServiceTest { // Самый веселый класс с тестам�
 
     @Test
     void transfer_shouldThrowException_whenAmountIsNegative(){
-        User user = new User("Nikita");
-        User user1 = new User("Anton");
+        User user = new User("AC-18","Nikita");
+        User user1 = new User("AC-19","Anton");
 
-        BankAccount source = new BankAccount(user);
-        BankAccount target = new BankAccount(user1);
+        BankAccount source = new BankAccount(user.getId(),user);
+        BankAccount target = new BankAccount(user.getId(),user);
 
         assertThrows(IllegalArgumentException.class,() -> service.transfer(source,target,new BigDecimal("-100")));
         // Взял за проверку на негатив -100 чисто для примера, чтобы с параметризованными тестами не возится!
@@ -125,18 +126,18 @@ class BankServiceTest { // Самый веселый класс с тестам�
 
     @Test
     void transfer_shouldThrowException_whenSourceIsNull(){
-        User user1 = new User("Anton");
+        User user1 = new User("AC-19","Anton");
 
-        BankAccount target = new BankAccount(user1);
+        BankAccount target = new BankAccount(user1.getId(),user1);
 
         assertThrows(IllegalArgumentException.class,() -> service.transfer(null,target,new BigDecimal("300")));
     }
 
     @Test
     void transfer_shouldThrowException_whenTargetIsNull(){
-        User user = new User("Nikita");
+        User user = new User("AC-18","Nikita");
 
-        BankAccount source = new BankAccount(user);
+        BankAccount source = new BankAccount(user.getId(),user);
 
         assertThrows(IllegalArgumentException.class,() -> service.transfer(source,null,new BigDecimal("300")));
     }
@@ -145,8 +146,8 @@ class BankServiceTest { // Самый веселый класс с тестам�
     @Test
     void getTransactionHistory_shouldReturnTransactionHistory_whenAccountIsValid(){ // Проверочка, записывается ли транзакция
 
-        User user = new User("Nikita");
-        BankAccount account = new BankAccount(user);
+        User user = new User("AC-18","Nikita");
+        BankAccount account = new BankAccount(user.getId(),user);
         account.deposit(new BigDecimal("1000"));
 
         assertEquals(1, service.getTransactionHistory(account).size());
@@ -161,13 +162,10 @@ class BankServiceTest { // Самый веселый класс с тестам�
     @Test
     void getTotalBalance_shouldReturnTotalBalance_whenUserHasMultipleAccounts(){ // Ну а здесь посмотрим работает ли баланс корректно
 
-        User user = new User("Nikita");
+        User user = new User("AC-18","Nikita");
 
-        BankAccount account1 = new BankAccount(user);
-        BankAccount account2 = new BankAccount(user);
-
-        user.addAccount(account1);
-        user.addAccount(account2);
+        BankAccount account1 = new BankAccount(user.getId(),user);
+        BankAccount account2 = new BankAccount(user.getId(),user);
 
         account1.deposit(new BigDecimal("1000"));
         account2.deposit(new BigDecimal("1000"));
@@ -179,7 +177,7 @@ class BankServiceTest { // Самый веселый класс с тестам�
 
     @Test
     void getTotalBalance_shouldReturnZero_whenUserHasNoAccounts (){ // Возвращаем ноль если нет счетов
-        User user = new User("Nikita");
+        User user = new User("AC-18","Nikita");
         assertEquals(BigDecimal.ZERO,service.getTotalBalance(user));
     }
 

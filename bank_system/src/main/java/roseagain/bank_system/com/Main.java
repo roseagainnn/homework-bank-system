@@ -6,14 +6,14 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) { // Мейн я взял из условия задач для демонстрации работы приложения
         // Создаем пользователя
-        User user = new User ("John Doe");
+        User user = new User ("AD2","John Doe");
 
         // Создаем сервис
         BankService bankService = new BankService();
 
         // Создаем счета
-        bankService.createAccount(user);
-        bankService.createAccount(user);
+        bankService.createAccount(user, "SAC293");
+        bankService.createAccount(user, "SAD214");
 
         // Получаем счета пользователя
         List<BankAccount> accounts = user.getAccounts();

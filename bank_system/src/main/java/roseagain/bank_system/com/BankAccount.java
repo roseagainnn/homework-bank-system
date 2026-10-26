@@ -6,59 +6,54 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static roseagain.bank_system.com.BankSystemValidator.validateAmount;
+import static roseagain.bank_system.com.BankSystemValidator.validateBankAccountNotMoney;
+
 public class BankAccount {
 
-    private String accountNumber;
+    private final String accountNumber;
     private BigDecimal balance = BigDecimal.ZERO;
-    private User owner;
-    private List<Transaction> transactions = new ArrayList<>();
+
+    public User getOwner() {
+        return owner;
+    }
+
+    private final User owner;
+    private final List<Transaction> transactions = new ArrayList<>();
 
     public List<Transaction> getTransactions() {
         return List.copyOf(transactions);
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance; // Здесь решил обойтись пока что setBalance - это чуть ломает инкапсуляцию
-        // в идеале ваще какой-нибудь метод иметь, чтобы через отдельный метод обращаться к балансу. Но для этой задачки решил оставить
     }
 
     public String getAccountNumber() {
         return accountNumber;
     }
 
-    public BankAccount(User owner) {
-        this.accountNumber = UUID.randomUUID().toString(); // В этой задачке решил использовать этот генератор для уникальности
-        // наших идентификаторов
+    public BankAccount(String accountNumber, User owner) {
+
+        if(accountNumber == null || accountNumber.isBlank() || owner == null ){
+            throw new IllegalArgumentException("При создании нового банковского аккаунта передан null / пустой объект!");
+        }
+
+        this.accountNumber = accountNumber;
         this.owner = owner;
+        owner.addAccount(this);
     }
 
     public void deposit(BigDecimal amount) {
 
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Вы ввели некорректное значения для внесения средств!");
-        }
-
-        // Отдельно отмечу, что для этой задачки я всю валидацию писал чисто в формате if(... проверка ... )
-        // Не стал заморачиваться с отдельным сервисом и писал чисто в методах, но думаю еще дойдем до этого
-
-        LocalDateTime current = LocalDateTime.now(); // Чтобы как-то трекать время выполнения транзакции
-        // Я решил взять метод.now - ну вроде логишно
+        validateAmount(amount);
         this.balance = balance.add(amount);
-        addTransaction(new Transaction(amount,current,"DEPOSIT")); // ну и трекаем транзакцию в наш списочек
+        addTransaction(new Transaction("ASD923",amount,TransactionType.DEPOSIT)); // ну и трекаем транзакцию в наш списочек
     }
 
     public void withdraw(BigDecimal amount) { // тут все в целом по аналогии
 
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Вы ввели некорректное значения для снятия средств!");
-        }
-        if (this.balance.compareTo(amount) < 0) {
-            throw new IllegalArgumentException("На счету недостаточно средств!");
-        }
+        validateAmount(amount);
+        validateBankAccountNotMoney(balance,amount);
 
-        LocalDateTime current = LocalDateTime.now();
         this.balance = balance.subtract(amount);
-        addTransaction(new Transaction(amount,current,"WITHDRAWAL"));
+        addTransaction(new Transaction("AS-102",amount,TransactionType.WITHDRAWAL));
     }
 
     public BigDecimal getBalance(){

@@ -1,24 +1,27 @@
 package roseagain.bank_system.com;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
+
+import static roseagain.bank_system.com.BankSystemValidator.validateAmount;
+import static roseagain.bank_system.com.BankSystemValidator.validateBankAccountNotMoney;
 
 public class BankService {
 
-    public void createAccount(User user){ // Тут все понятненько
+    public void createAccount(User user, String accountNumber){ // Тут все понятненько
         if(user == null) {
             throw new IllegalArgumentException("Такого пользователя не существует!");
         }
-        user.addAccount(new BankAccount(user));
+
+        if(accountNumber == null || accountNumber.isBlank()){
+            throw new IllegalArgumentException("ID аккаунта не может быть null / пустым!");
+        }
+
+        new BankAccount(accountNumber,user);
     }
 
 
     public void transfer (BankAccount source, BankAccount target, BigDecimal amount) {
-
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Вы ввели некорректное значения для выполнения транзакции!");
-        }
 
         if (source == null || target == null) {
             throw new IllegalArgumentException("Банковские аккаунты не могут быть null!");
@@ -28,22 +31,15 @@ public class BankService {
             throw new IllegalArgumentException("Нельзя перевести деньги самому себе!");
         }
 
-        if(source.getBalance().compareTo(amount)<0){
-            throw new IllegalArgumentException("Недостаточно средств для перевода!");
-        }
-
-        LocalDateTime current = LocalDateTime.now();
-
         // Наша транзакция в этом примере не атомарна. То есть при какой-то ошибке во время выполнения транзакции
         // у нас может быть списание без зачисления к примеру. Я почекал - есть способы это реализовать на уровне Java Core
         // но там много логики, в условиях вроде не было ничего - решил так оставить, но при желании можно прикрутить
 
-        source.setBalance(source.getBalance().subtract(amount));
-        target.setBalance(target.getBalance().add(amount));
-        Transaction transaction = new Transaction(amount,current,source,target,"TRANSFER");
+        source.withdraw(amount);
+        target.deposit(amount);
+        Transaction transaction = new Transaction("ACD028",amount,source,target,TransactionType.TRANSFER);
         target.addTransaction(transaction);
         source.addTransaction(transaction);
-
 
     }
 
