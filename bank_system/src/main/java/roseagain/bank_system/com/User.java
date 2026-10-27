@@ -2,7 +2,6 @@ package roseagain.bank_system.com;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class User {
 
@@ -24,28 +23,20 @@ public class User {
         return id;
     }
 
-    public List<BankAccount> getBankAccounts() {
-        return List.copyOf(bankAccounts);
-    }
-
     private final String id;
     private String name;
     private final List<BankAccount> bankAccounts = new ArrayList<>();
 
     public void addAccount(BankAccount account){
 
-        if(account == null){
-            throw new IllegalArgumentException("Такого аккаунта не существует!");
-        }
+        if(account == null) throw new IllegalArgumentException("Счет не может быть null!");
 
-        if (bankAccounts.contains(account)){
-            throw new IllegalArgumentException("Вы пытаетесь добавить одинаковый аккаунт!");
+        if (bankAccounts.contains(account)) throw new IllegalArgumentException("Вы пытаетесь добавить одинаковый аккаунт!");
 
-        }
+        if (account.getOwner() != this) throw new IllegalArgumentException("Счет не может принадлежать другому владельцу!");
 
-        if(account.getOwner() == this) {
             bankAccounts.add(account);
-        }
+
     }
 
     public List<BankAccount> getAccounts(){

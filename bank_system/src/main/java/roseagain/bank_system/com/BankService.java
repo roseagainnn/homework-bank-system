@@ -1,24 +1,25 @@
 package roseagain.bank_system.com;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
-
-import static roseagain.bank_system.com.BankSystemValidator.validateAmount;
-import static roseagain.bank_system.com.BankSystemValidator.validateBankAccountNotMoney;
+import java.util.Set;
 
 public class BankService {
 
     public void createAccount(User user, String accountNumber){ // Тут все понятненько
-        if(user == null) {
-            throw new IllegalArgumentException("Такого пользователя не существует!");
+
+
+        if(uniqueAccountNumber.contains(accountNumber)){
+            throw new IllegalArgumentException("Аккаунт с таким номером аккаунта уже был создан!");
         }
 
-        if(accountNumber == null || accountNumber.isBlank()){
-            throw new IllegalArgumentException("ID аккаунта не может быть null / пустым!");
-        }
-
-        new BankAccount(accountNumber,user);
+        BankAccount account = new BankAccount(accountNumber,user);
+        user.addAccount(account);
+        uniqueAccountNumber.add(accountNumber);
     }
+
+    private final Set<String> uniqueAccountNumber = new HashSet<>();
 
 
     public void transfer (BankAccount source, BankAccount target, BigDecimal amount) {
@@ -35,9 +36,9 @@ public class BankService {
         // у нас может быть списание без зачисления к примеру. Я почекал - есть способы это реализовать на уровне Java Core
         // но там много логики, в условиях вроде не было ничего - решил так оставить, но при желании можно прикрутить
 
-        source.withdraw(amount);
-        target.deposit(amount);
-        Transaction transaction = new Transaction("ACD028",amount,source,target,TransactionType.TRANSFER);
+        source.debit(amount);
+        target.credit(amount);
+        Transaction transaction = new Transaction(amount,source,target,TransactionType.TRANSFER);
         target.addTransaction(transaction);
         source.addTransaction(transaction);
 

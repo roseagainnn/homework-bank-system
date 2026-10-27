@@ -31,7 +31,7 @@ public class Main {
         System.out.println("Balance" +acc2.getAccountNumber() + acc2.getBalance());
 
         // Выводим историю транзакций
-        System.out.println("Transaction history for ACC123:");
+        System.out.println("Transaction history for AD2:");
         bankService.getTransactionHistory(acc1).forEach(System.out::println);
     }
 }

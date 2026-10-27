@@ -4,9 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,7 +57,7 @@ class BankAccountTest {
 
     @Test
     void addTransaction_shouldAddTransaction_whenTransactionIsValid_andThrowException() {
-        Transaction transaction = new Transaction("ASCD201",new BigDecimal("1000"),TransactionType.TRANSFER);
+        Transaction transaction = new Transaction(new BigDecimal("1000"),TransactionType.TRANSFER);
         account.addTransaction(transaction);
 
         assertEquals(1,account.getTransactions().size()); // Смотрим, что транзакция именно 1!

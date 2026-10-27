@@ -6,13 +6,13 @@ import java.util.UUID;
 
 public class Transaction {
 
-    public Transaction(String id,BigDecimal amount,BankAccount sourceAccount, BankAccount targetAccount, TransactionType type) {
+    public Transaction(BigDecimal amount,BankAccount sourceAccount, BankAccount targetAccount, TransactionType type) {
 
-        if(id == null || id.isBlank() || amount == null || sourceAccount == null || targetAccount == null || type == null ){
+        if(amount == null || sourceAccount == null || targetAccount == null || type == null ){
             throw  new IllegalArgumentException("При создании транзакции передан null / пустой объект!");
         }
 
-        this.id = id;
+        this.id = UUID.randomUUID().toString();
         this.amount = amount;
         this.date = LocalDateTime.now();
         this.sourceAccount = sourceAccount;
@@ -20,13 +20,13 @@ public class Transaction {
         this.type = type;
     }
 // Создал 2 конструктора для создания транзакций ( для перевода, снятия и пополнения )
-    public Transaction(String id, BigDecimal amount, TransactionType type) {
+    public Transaction(BigDecimal amount, TransactionType type) {
 
-        if(id == null || id.isBlank() || amount == null || type == null){
+        if(amount == null || type == null){
             throw new IllegalArgumentException("При создании транзакции передан null / пустой объект");
         }
 
-        this.id = id;
+        this.id = UUID.randomUUID().toString();
         this.amount = amount;
         this.date = LocalDateTime.now();
         this.type = type;
